@@ -592,5 +592,245 @@
         renderVideos([...videos].reverse(), 'newVideos');
         renderTrending();
     </script>
+        <!-- Video Pleyer, Kirish va Video Qo'shish Oynalari -->
+    <style>
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .modal-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 750px;
+            padding: 20px;
+            position: relative;
+            animation: fadeIn 0.2s ease;
+        }
+        .modal-small { max-width: 400px; }
+        .close-btn {
+            position: absolute;
+            top: 14px; right: 16px;
+            background: var(--bg-card);
+            border: none; color: white;
+            width: 32px; height: 32px;
+            border-radius: 50%; cursor: pointer;
+            font-size: 16px;
+        }
+        .video-frame {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 12px;
+            background: black;
+            margin-bottom: 12px;
+            border: none;
+        }
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-main);
+            color: white;
+            outline: none;
+        }
+        .like-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .like-btn.liked { background: var(--accent); border-color: var(--accent); }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    </style>
+
+    <!-- 1. Video tomosha qilish oynasi -->
+    <div class="modal-overlay" id="playerModal">
+        <div class="modal-box">
+            <button class="close-btn" onclick="closeModal('playerModal')">&times;</button>
+            <iframe class="video-frame" id="videoIframe" src="" allowfullscreen></iframe>
+            <h3 id="playerTitle" style="margin-bottom: 6px;"></h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <span id="playerMeta" style="color: var(--text-muted); font-size: 13px;"></span>
+                <button class="like-btn" id="likeBtn" onclick="toggleLike()">
+                    <i class="fas fa-thumbs-up"></i> <span id="likeCount">124</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Ro'yxatdan o'tish / Kirish oynasi -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-box modal-small">
+            <button class="close-btn" onclick="closeModal('authModal')">&times;</button>
+            <h3 style="margin-bottom: 16px; text-align: center;">UzVideo Hisobga kirish</h3>
+            <input type="text" id="usernameInput" class="form-input" placeholder="Ismingizni kiriting...">
+            <input type="password" class="form-input" placeholder="Parol...">
+            <button class="btn-primary" style="width: 100%;" onclick="loginUser()">Kirish</button>
+        </div>
+    </div>
+
+    <!-- 3. Yangi video qo'shish oynasi -->
+    <div class="modal-overlay" id="addVideoModal">
+        <div class="modal-box modal-small">
+            <button class="close-btn" onclick="closeModal('addVideoModal')">&times;</button>
+            <h3 style="margin-bottom: 16px;">Yangi video qo'shish</h3>
+            <input type="text" id="newVidTitle" class="form-input" placeholder="Video nomi...">
+            <input type="text" id="newVidChannel" class="form-input" placeholder="Kanal nomi...">
+            <select id="newVidCat" class="form-input">
+                <option value="O'yinlar">O'yinlar</option>
+                <option value="Musiqa">Musiqa</option>
+                <option value="Filmlar">Filmlar</option>
+                <option value="Sport">Sport</option>
+                <option value="Ta'lim">Ta'lim</option>
+            </select>
+            <input type="text" id="newVidImg" class="form-input" placeholder="Rasm havolasi (ixtiyoriy)">
+            <button class="btn-primary" style="width: 100%;" onclick="addNewVideo()">Saytga joylash</button>
+        </div>
+    </div>
+
+    <script>
+        // Eski videolarga kategoriya va YouTube video havolalarini biriktirish
+        const videoExtras = [
+            { cat: "O'yinlar", embed: "https://youtube.com" },
+            { cat: "Musiqa", embed: "https://youtube.com" },
+            { cat: "Filmlar", embed: "https://youtube.com" },
+            { cat: "Kulgu", embed: "https://youtube.com" }
+        ];
+
+        videos.forEach((v, i) => {
+            v.category = videoExtras[i]?.cat || "Barchasi";
+            v.embed = videoExtras[i]?.embed || "https://youtube.com";
+        });
+
+        // Videoni ochib ko'rsatish funksiyasi
+        function openPlayer(title, channel, views, embedUrl) {
+            document.getElementById('playerTitle').innerText = title;
+            document.getElementById('playerMeta').innerText = channel + " • " + views;
+            document.getElementById('videoIframe').src = embedUrl;
+            document.getElementById('likeBtn').classList.remove('liked');
+            document.getElementById('likeCount').innerText = Math.floor(Math.random() * 500) + 50;
+            document.getElementById('playerModal').style.display = 'flex';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+            if (id === 'playerModal') {
+                document.getElementById('videoIframe').src = '';
+            }
+        }
+
+        function toggleLike() {
+            const btn = document.getElementById('likeBtn');
+            const countSpan = document.getElementById('likeCount');
+            let count = parseInt(countSpan.innerText);
+            if (btn.classList.contains('liked')) {
+                btn.classList.remove('liked');
+                countSpan.innerText = count - 1;
+            } else {
+                btn.classList.add('liked');
+                countSpan.innerText = count + 1;
+            }
+        }
+
+        // Barcha video kartochkalarini bosiladigan qilish
+        const originalRenderVideos = renderVideos;
+        renderVideos = function(list, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = list.map(v => `
+                <div class="video-card" onclick="openPlayer('${v.title.replace(/'/g, "\\'")}', '${v.channel}', '${v.views}', '${v.embed}')">
+                    <div class="thumbnail">
+                        <img src="${v.img}" alt="${v.title}">
+                        <span class="duration">${v.duration}</span>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">${v.title}</div>
+                        <div class="channel-name">${v.channel} <i class="fas fa-check-circle" style="font-size: 10px;"></i></div>
+                        <div class="video-meta">${v.views} • ${v.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        // Kategoriyalarni ishlatish
+        document.querySelectorAll('.cat-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                const cat = this.innerText.trim();
+                if (cat === 'Barchasi') {
+                    renderVideos(videos, 'popularVideos');
+                } else {
+                    const filtered = videos.filter(v => v.category === cat);
+                    renderVideos(filtered.length ? filtered : videos, 'popularVideos');
+                }
+            });
+        });
+
+        // Tugmalarni jonlantirish
+        document.querySelector('.auth-card button').onclick = () => document.getElementById('authModal').style.display = 'flex';
+        document.querySelector('.hero-banner button').onclick = () => openPlayer(videos[0].title, videos[0].channel, videos[0].views, videos[0].embed);
+        
+        // Tepaga "+ Video qo'shish" tugmasini qo'shish
+        const addBtn = document.createElement('button');
+        addBtn.className = 'btn-primary';
+        addBtn.innerHTML = '<i class="fas fa-plus"></i> Video';
+        addBtn.onclick = () => document.getElementById('addVideoModal').style.display = 'flex';
+        document.querySelector('.user-actions').prepend(addBtn);
+
+        // Kirish funksiyasi
+        function loginUser() {
+            const name = document.getElementById('usernameInput').value.trim();
+            if (!name) return alert("Ismingizni yozing!");
+            document.querySelector('.auth-card h3').innerText = "Xush kelibsiz, " + name + "!";
+            document.querySelector('.auth-card p').innerText = "Siz tizimga muvaffaqiyatli kirdingiz.";
+            document.querySelector('.auth-card button').style.display = 'none';
+            closeModal('authModal');
+        }
+
+        // Yangi video qo'shish funksiyasi
+        function addNewVideo() {
+            const title = document.getElementById('newVidTitle').value.trim();
+            const channel = document.getElementById('newVidChannel').value.trim() || "UzVideo User";
+            const cat = document.getElementById('newVidCat').value;
+            const img = document.getElementById('newVidImg').value.trim() || "https://unsplash.com";
+            
+            if (!title) return alert("Video nomini kiriting!");
+            
+            videos.unshift({
+                title: title,
+                channel: channel,
+                views: "1 ko'rish",
+                time: "Hozirgina",
+                duration: "10:00",
+                img: img,
+                category: cat,
+                embed: "https://youtube.com"
+            });
+            
+            renderVideos(videos, 'popularVideos');
+            renderVideos(videos, 'newVideos');
+            renderTrending();
+            closeModal('addVideoModal');
+            document.getElementById('newVidTitle').value = '';
+        }
+
+        renderVideos(videos, 'popularVideos');
+        renderVideos([...videos].reverse(), 'newVideos');
+    </script>
 </body>
 </html>
