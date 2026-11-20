@@ -1,4 +1,4 @@
-7<!DOCTYPE html>
+77<!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
@@ -1399,6 +1399,133 @@
 
         function toggleDrawer(show) {
             document.getElementById('sideDrawerOverlay').style.display = show ? 'flex' : 'none';
+        }
+    </script>
+    <!-- YouTube uslubidagi pastki panel va yangilangan uch chiziqli menyu -->
+    <style>
+        /* Pastki panelni YouTube uslubida qayta ko'rsatish */
+        .yt-bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1500;
+        }
+        .yt-tab {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            gap: 3px;
+            cursor: pointer;
+            flex: 1;
+        }
+        .yt-tab.active {
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .yt-tab-icon {
+            font-size: 19px;
+        }
+        .yt-add-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: white;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        body {
+            padding-bottom: 70px !important;
+        }
+
+        /* Shorts oynasi dizayni */
+        .shorts-view {
+            display: none;
+            text-align: center;
+            padding: 30px 16px;
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+    </style>
+
+    <!-- Shorts bo'limi (Shorts bosilganda ochiladi) -->
+    <div id="shortsContainer" class="shorts-view">
+        <div style="font-size: 46px; margin-bottom: 10px;">⚡</div>
+        <h2 style="margin-bottom: 8px;">UzVideo Shorts</h2>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Qisqa vertikal videolar bo'limi. O'z Shorts videongizni yuklang!</p>
+        <button class="btn-primary" onclick="triggerDirectUpload()">+ Shorts yuklash</button>
+    </div>
+
+    <!-- YouTube uslubidagi 4 ta tugmali pastki panel -->
+    <div class="yt-bottom-bar">
+        <button class="yt-tab active" id="tabHome" onclick="switchYtTab('home')">
+            <span class="yt-tab-icon">🏠</span>
+            <span>Asosiy</span>
+        </button>
+        <button class="yt-tab" id="tabShorts" onclick="switchYtTab('shorts')">
+            <span class="yt-tab-icon">⚡</span>
+            <span>Shorts</span>
+        </button>
+        <button class="yt-tab" onclick="triggerDirectUpload()">
+            <div class="yt-add-circle">+</div>
+        </button>
+        <button class="yt-tab" id="tabAccount" onclick="switchYtTab('account')">
+            <span class="yt-tab-icon">👤</span>
+            <span>Akkount</span>
+        </button>
+    </div>
+
+    <script>
+        // 1. Uch chiziqli (☰) menyu ichidan "Asosiy sahifa" tugmasini olib tashlash
+        document.querySelectorAll('.drawer-item').forEach(item => {
+            if (item.innerText.includes('Asosiy sahifa')) {
+                item.style.display = 'none';
+            }
+        });
+
+        // 2. Shorts konteynerini asosiy sahifaning tepasiga joylashtirish
+        const mainContent = document.querySelector('.main-content');
+        const shortsBox = document.getElementById('shortsContainer');
+        mainContent.prepend(shortsBox);
+
+        // 3. Pastki tugmalar (Asosiy, Shorts, Akkount) o'rtasida almashish
+        function switchYtTab(tab) {
+            document.querySelectorAll('.yt-tab').forEach(t => t.classList.remove('active'));
+            
+            if (tab === 'home') {
+                document.getElementById('tabHome').classList.add('active');
+                shortsBox.style.display = 'none';
+                document.querySelector('.content-grid').style.display = 'grid';
+                document.querySelector('.categories').style.display = 'flex';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } 
+            else if (tab === 'shorts') {
+                document.getElementById('tabShorts').classList.add('active');
+                shortsBox.style.display = 'block';
+                document.querySelector('.content-grid').style.display = 'none';
+                document.querySelector('.categories').style.display = 'none';
+            } 
+            else if (tab === 'account') {
+                document.getElementById('tabAccount').classList.add('active');
+                document.getElementById('authModal').style.display = 'flex';
+            }
         }
     </script>
 
