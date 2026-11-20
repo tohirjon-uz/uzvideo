@@ -1174,6 +1174,44 @@
             document.getElementById('directVideoPicker').value = "";
         }
     </script>
+    <style>
+        /* 1. Tepada ko'rinmay qolgan bo'sh qora tugmalar va ortiqcha "+" tugmasini yashirish */
+        .user-actions { display: none !important; }
+        .logo i { display: none !important; }
+        
+        /* 2. Qidiruv satrini chiroyli va keng qilish */
+        .search-bar {
+            width: 65% !important;
+            max-width: 400px !important;
+        }
+        .search-bar button::before {
+            content: "🔍";
+            font-size: 14px;
+        }
+
+        /* 3. Ochilmay qolgan kulrang video rasmlari o'rniga chiroyli dizayn berish */
+        .thumbnail {
+            background: linear-gradient(135deg, #2e1065, #6d28d9) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        .thumbnail img {
+            display: none !important;
+        }
+        .thumbnail::before {
+            content: "▶";
+            font-size: 32px;
+            color: white;
+            background: rgba(0, 0, 0, 0.45);
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
 
 </body>
 </html>
