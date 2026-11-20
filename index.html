@@ -1212,6 +1212,49 @@
             justify-content: center;
         }
     </style>
+    <style>
+        /* Trendda bo'limidagi singan rasmlarni chiroyli ikonka bilan almashtirish */
+        .trend-thumb {
+            display: none !important;
+        }
+        .trending-item::before {
+            content: "▶";
+            width: 48px;
+            height: 36px;
+            background: linear-gradient(135deg, #2e1065, #6d28d9);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .trending-item {
+            cursor: pointer;
+        }
+    </style>
+
+    <script>
+        // Trendda bo'limidagi videolarni ham bosiladigan qilish
+        function fixTrendingItems() {
+            const items = document.querySelectorAll('.trending-item');
+            items.forEach((item, index) => {
+                item.onclick = () => {
+                    const v = videos[index];
+                    if (v) openPlayer(v.title, v.channel, v.views, v.embed);
+                };
+            });
+        }
+        
+        // Har safar trend ro'yxati yangilanganda ularni bosiladigan qilish
+        const origRenderTrending = renderTrending;
+        renderTrending = function() {
+            origRenderTrending();
+            fixTrendingItems();
+        };
+        fixTrendingItems();
+    </script>
 
 </body>
 </html>
