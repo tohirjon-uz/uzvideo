@@ -1028,6 +1028,152 @@
             renderVideos(videos, 'newVideos');
         }
     </script>
+    <!-- Yashirin fayl tanlagich (darhol galereyani ochadi) -->
+    <input type="file" id="directVideoPicker" accept="video/*" style="display: none;">
+
+    <!-- Pastki mobil navigatsiya paneli (+ tugmasi bilan) -->
+    <style>
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 8px 0;
+            z-index: 999;
+        }
+        .b-nav-item {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 11px;
+            gap: 4px;
+            cursor: pointer;
+        }
+        .b-nav-item.active { color: white; }
+        .b-plus-btn {
+            background: linear-gradient(135deg, #7c3aed, #ec4899);
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.5);
+            cursor: pointer;
+            margin-top: -16px;
+        }
+        body { padding-bottom: 70px; }
+    </style>
+
+    <div class="bottom-nav">
+        <button class="b-nav-item active" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+            <span style="font-size: 18px;">🏠</span>
+            <span>Asosiy</span>
+        </button>
+        <button class="b-nav-item" onclick="document.getElementById('searchInput').focus()">
+            <span style="font-size: 18px;">🔍</span>
+            <span>Qidiruv</span>
+        </button>
+        <button class="b-plus-btn" onclick="triggerDirectUpload()" title="Video yuklash">+</button>
+        <button class="b-nav-item" onclick="document.getElementById('settingsModal').style.display='flex'">
+            <span style="font-size: 18px;">⚙️</span>
+            <span>Sozlamalar</span>
+        </button>
+        <button class="b-nav-item" onclick="document.getElementById('authModal').style.display='flex'">
+            <span style="font-size: 18px;">👤</span>
+            <span>Profil</span>
+        </button>
+    </div>
+
+    <!-- Video tanlangandan keyin sarlavha kiritish oynasi -->
+    <div class="modal-overlay" id="quickDetailsModal">
+        <div class="modal-box modal-small">
+            <button class="close-btn" onclick="closeModal('quickDetailsModal')">&times;</button>
+            <h3 style="margin-bottom: 12px;">🎬 Video ma'lumotlari</h3>
+            <video id="previewSelectedVideo" style="width: 100%; max-height: 180px; border-radius: 10px; background: black; margin-bottom: 12px;" controls></video>
+            <input type="text" id="quickVidTitle" class="form-input" placeholder="Video uchun sarlavha yozing...">
+            <select id="quickVidCat" class="form-input">
+                <option value="O'yinlar">🎮 O'yinlar</option>
+                <option value="Musiqa">🎵 Musiqa</option>
+                <option value="Filmlar">🎬 Filmlar</option>
+                <option value="Kulgu">😂 Kulgu</option>
+                <option value="Ta'lim">📚 Ta'lim</option>
+            </select>
+            <button class="btn-primary" style="width: 100%;" onclick="publishSelectedVideo()">Joylashtirish</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedVideoUrl = "";
+
+        // 1. "+" tugmasi bosilganda darhol galereyani ochish
+        function triggerDirectUpload() {
+            document.getElementById('directVideoPicker').click();
+        }
+
+        // Tepada turgan "+ Video" tugmasini ham darhol galereyani ochadigan qilish
+        document.querySelectorAll('.user-actions button').forEach(btn => {
+            if (btn.innerText.includes('Video')) {
+                btn.innerHTML = '+';
+                btn.style.fontSize = '20px';
+                btn.style.padding = '4px 14px';
+                btn.onclick = triggerDirectUpload;
+            }
+        });
+
+        // 2. Telefondan video tanlanishi bilan darhol keyingi oynani ochish
+        document.getElementById('directVideoPicker').addEventListener('change', function(e) {
+            const file = e.target.files;
+            if (!file) return;
+
+            selectedVideoUrl = URL.createObjectURL(file);
+            document.getElementById('previewSelectedVideo').src = selectedVideoUrl;
+            
+            // Fayl nomini avtomatik sarlavha sifatida qo'yib berish
+            const cleanName = file.name.replace(/\.[^/.]+$/, "");
+            document.getElementById('quickVidTitle').value = cleanName;
+            
+            document.getElementById('quickDetailsModal').style.display = 'flex';
+        });
+
+        // 3. Videoni saytga chiqarish
+        function publishSelectedVideo() {
+            const title = document.getElementById('quickVidTitle').value.trim() || "Yangi video";
+            const cat = document.getElementById('quickVidCat').value;
+
+            const newVid = {
+                title: title,
+                channel: document.querySelector('.auth-card h3').innerText.replace('Xush kelibsiz, ', '').replace('!', '') || "Mening kanalim",
+                views: "1 ko'rish",
+                time: "Hozirgina",
+                duration: "MP4",
+                img: "https://unsplash.com",
+                category: cat,
+                embed: selectedVideoUrl,
+                isLocal: true
+            };
+
+            videos.unshift(newVid);
+            renderVideos(videos, 'popularVideos');
+            renderVideos(videos, 'newVideos');
+            renderTrending();
+
+            document.getElementById('previewSelectedVideo').pause();
+            closeModal('quickDetailsModal');
+            document.getElementById('directVideoPicker').value = "";
+        }
+    </script>
 
 </body>
 </html>
