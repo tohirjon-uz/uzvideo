@@ -1255,6 +1255,37 @@
         };
         fixTrendingItems();
     </script>
+    <script>
+        // Barcha 4 ta bo'sh namuna videolarni o'chirib tashlash
+        videos.length = 0;
+
+        // Agar oldin o'zingiz saqlagan videolar bo'lsa, faqat o'shalarni qoldirish
+        const mySaved = JSON.parse(localStorage.getItem('uzvideo_saved') || '[]');
+        videos.push(...mySaved);
+
+        // Bo'sh holatda chiroyli xabar chiqarish
+        const origRender = renderVideos;
+        renderVideos = function(list, containerId) {
+            const container = document.getElementById(containerId);
+            if (list.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; background: var(--bg-card); border-radius: 16px; border: 1px dashed var(--border-color); grid-column: 1 / -1;">
+                        <div style="font-size: 40px; margin-bottom: 10px;">🎬</div>
+                        <h3 style="margin-bottom: 6px;">Hozircha videolar yo'q</h3>
+                        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Birinchi videoni yuklash uchun pastdagi <b>+</b> tugmasini bosing</p>
+                        <button class="btn-primary" onclick="triggerDirectUpload()">+ Video yuklash</button>
+                    </div>
+                `;
+                return;
+            }
+            origRender(list, containerId);
+        };
+
+        // Sahifani yangilab, o'sha 4 ta namunani tozalash
+        renderVideos(videos, 'popularVideos');
+        renderVideos(videos, 'newVideos');
+        document.querySelector('.trending-box').style.display = 'none';
+    </script>
 
 </body>
 </html>
