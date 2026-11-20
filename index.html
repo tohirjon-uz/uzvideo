@@ -1286,6 +1286,121 @@
         renderVideos(videos, 'newVideos');
         document.querySelector('.trending-box').style.display = 'none';
     </script>
+    <!-- Yuqori o'ng burchakdagi uch chiziqli menyu (Drawer) -->
+    <style>
+        /* Pastki menyuni yashirish va pastki bo'shliqni olib tashlash */
+        .bottom-nav { display: none !important; }
+        body { padding-bottom: 10px !important; }
+
+        /* Qidiruv satrini menyu tugmasiga joy qoldiradigan qilish */
+        .search-bar {
+            width: 55% !important;
+            max-width: 350px !important;
+        }
+
+        /* Uch chiziqli (☰) tugma dizayni */
+        .hamburger-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* Yon menyu (Drawer) dizayni */
+        .side-drawer-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 2000;
+            justify-content: flex-end;
+        }
+        .side-drawer {
+            width: 260px;
+            height: 100%;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-color);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            animation: slideLeft 0.2s ease;
+        }
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 6px;
+        }
+        .drawer-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .drawer-item.highlight {
+            background: linear-gradient(135deg, #7c3aed, #ec4899);
+            border: none;
+            font-weight: bold;
+        }
+        @keyframes slideLeft { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    </style>
+
+    <!-- Yon menyu oynasi -->
+    <div class="side-drawer-overlay" id="sideDrawerOverlay" onclick="if(event.target===this) toggleDrawer(false)">
+        <div class="side-drawer">
+            <div class="drawer-header">
+                <strong style="font-size: 18px;">Menyu</strong>
+                <button class="close-btn" style="position:static;" onclick="toggleDrawer(false)">&times;</button>
+            </div>
+            
+            <button class="drawer-item highlight" onclick="toggleDrawer(false); triggerDirectUpload();">
+                <span>➕</span> <span>Video yuklash</span>
+            </button>
+            <button class="drawer-item" onclick="toggleDrawer(false); window.scrollTo({top:0, behavior:'smooth'});">
+                <span>🏠</span> <span>Asosiy sahifa</span>
+            </button>
+            <button class="drawer-item" onclick="toggleDrawer(false); document.getElementById('searchInput').focus();">
+                <span>🔍</span> <span>Qidiruv</span>
+            </button>
+            <button class="drawer-item" onclick="toggleDrawer(false); document.getElementById('settingsModal').style.display='flex';">
+                <span>⚙️</span> <span>Sozlamalar</span>
+            </button>
+            <button class="drawer-item" onclick="toggleDrawer(false); document.getElementById('authModal').style.display='flex';">
+                <span>👤</span> <span>Profil / Kirish</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Yuqori o'ng burchakka uch chiziqli (☰) tugmani qo'shish
+        const menuBtn = document.createElement('button');
+        menuBtn.className = 'hamburger-btn';
+        menuBtn.innerHTML = '☰';
+        menuBtn.onclick = () => toggleDrawer(true);
+        document.querySelector('header').appendChild(menuBtn);
+
+        function toggleDrawer(show) {
+            document.getElementById('sideDrawerOverlay').style.display = show ? 'flex' : 'none';
+        }
+    </script>
 
 </body>
 </html>
