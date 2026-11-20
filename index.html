@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+7<!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
@@ -832,5 +832,202 @@
         renderVideos(videos, 'popularVideos');
         renderVideos([...videos].reverse(), 'newVideos');
     </script>
+        <!-- Sozlamalar (Settings) Oynasi -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-box modal-small">
+            <button class="close-btn" onclick="closeModal('settingsModal')">&times;</button>
+            <h3 style="margin-bottom: 16px;"><i class="fas fa-cog"></i> Sayt sozlamalari</h3>
+            
+            <label style="font-size: 13px; color: var(--text-muted);">Sayt nomi:</label>
+            <input type="text" id="siteNameInput" class="form-input" value="UzVideo">
+
+            <label style="font-size: 13px; color: var(--text-muted);">Mavzu (Theme):</label>
+            <select id="themeSelect" class="form-input" onchange="changeTheme()">
+                <option value="dark">🌙 Qorong'u rejim (Dark)</option>
+                <option value="light">☀️ Yorug' rejim (Light)</option>
+            </select>
+
+            <label style="font-size: 13px; color: var(--text-muted);">Standart video sifati:</label>
+            <select class="form-input">
+                <option>Auto (Tavsiya etiladi)</option>
+                <option>1080p Full HD</option>
+                <option>720p HD</option>
+                <option>480p (Trafikni tejash)</option>
+            </select>
+
+            <button class="btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="saveSettings()">Saqlash</button>
+            <button class="btn-primary" style="width: 100%; background: #dc2626;" onclick="clearSavedVideos()">Saqlangan videolarni o'chirish</button>
+        </div>
+    </div>
+
+    <script>
+        // 1. Video qo'shish oynasini yangilash (Telefondan video + YouTube link)
+        document.getElementById('addVideoModal').innerHTML = `
+            <div class="modal-box modal-small">
+                <button class="close-btn" onclick="closeModal('addVideoModal')">&times;</button>
+                <h3 style="margin-bottom: 14px;">📤 Yangi video yuklash</h3>
+                
+                <input type="text" id="newVidTitle" class="form-input" placeholder="Video sarlavhasi (majburiy)">
+                <input type="text" id="newVidChannel" class="form-input" placeholder="Kanal nomi">
+                
+                <select id="newVidCat" class="form-input">
+                    <option value="O'yinlar">🎮 O'yinlar</option>
+                    <option value="Musiqa">🎵 Musiqa</option>
+                    <option value="Filmlar">🎬 Filmlar</option>
+                    <option value="Sport">⚽ Sport</option>
+                    <option value="Ta'lim">📚 Ta'lim</option>
+                </select>
+
+                <label style="font-size: 12px; color: var(--text-muted); display:block; margin-bottom:4px;">1-usul: Telefondan video tanlash (.mp4):</label>
+                <input type="file" id="localVideoFile" accept="video/*" class="form-input" style="padding: 6px;">
+
+                <label style="font-size: 12px; color: var(--text-muted); display:block; margin-bottom:4px;">2-usul: Yoki YouTube video havolasi (link):</label>
+                <input type="text" id="newVidYoutube" class="form-input" placeholder="https://youtu.be...">
+
+                <button class="btn-primary" style="width: 100%;" onclick="uploadRealVideo()">Saytga yuklash</button>
+            </div>
+        `;
+
+        // 2. Tepaga "Sozlamalar" tugmasini qo'shish
+        const settingsBtn = document.createElement('button');
+        settingsBtn.className = 'icon-btn';
+        settingsBtn.innerHTML = '<i class="fas fa-cog"></i>';
+        settingsBtn.title = "Sozlamalar";
+        settingsBtn.onclick = () => document.getElementById('settingsModal').style.display = 'flex';
+        document.querySelector('.user-actions').appendChild(settingsBtn);
+
+        // 3. YouTube linkidan ID ajratib olish
+        function getYouTubeID(url) {
+            const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?]+)/);
+            return match ? match[1] : null;
+        }
+
+        // 4. Haqiqiy video yuklash (Telefondan yoki YouTube'dan)
+        function uploadRealVideo() {
+            const title = document.getElementById('newVidTitle').value.trim();
+            const channel = document.getElementById('newVidChannel').value.trim() || "Mening kanalim";
+            const cat = document.getElementById('newVidCat').value;
+            const fileInput = document.getElementById('localVideoFile');
+            const ytLink = document.getElementById('newVidYoutube').value.trim();
+
+            if (!title) return alert("Iltimos, video sarlavhasini kiriting!");
+
+            let videoSrc = "";
+            let isLocal = false;
+
+            if (fileInput.files && fileInput.files[0]) {
+                // Telefondan tanlangan video
+                videoSrc = URL.createObjectURL(fileInput.files[0]);
+                isLocal = true;
+            } else if (ytLink) {
+                // YouTube havolasi
+                const ytId = getYouTubeID(ytLink);
+                if (!ytId) return alert("YouTube havolasi noto'g'ri kiritildi!");
+                videoSrc = `https://youtube.com{ytId}?autoplay=1`;
+            } else {
+                return alert("Telefondan video tanlang yoki YouTube havolasini kiriting!");
+            }
+
+            const newVideo = {
+                title: title,
+                channel: channel,
+                views: "1 ko'rish",
+                time: "Hozirgina",
+                duration: isLocal ? "MP4" : "HD",
+                img: "https://unsplash.com",
+                category: cat,
+                embed: videoSrc,
+                isLocal: isLocal
+            };
+
+            videos.unshift(newVideo);
+
+            // Agar YouTube link bo'lsa, brauzer xotirasida saqlab qolish
+            if (!isLocal) {
+                let saved = JSON.parse(localStorage.getItem('uzvideo_saved') || '[]');
+                saved.unshift(newVideo);
+                localStorage.setItem('uzvideo_saved', JSON.stringify(saved));
+            }
+
+            renderVideos(videos, 'popularVideos');
+            renderVideos(videos, 'newVideos');
+            renderTrending();
+            closeModal('addVideoModal');
+            alert("Video muvaffaqiyatli yuklandi!");
+        }
+
+        // 5. Pleyerni yangilash (Ham YouTube, ham telefondagi MP4 videoni ochadigan qilish)
+        openPlayer = function(title, channel, views, embedUrl) {
+            document.getElementById('playerTitle').innerText = title;
+            document.getElementById('playerMeta').innerText = channel + " • " + views;
+            
+            const modalBox = document.querySelector('#playerModal .modal-box');
+            const oldMedia = document.getElementById('videoIframe');
+            
+            if (embedUrl.startsWith('blob:')) {
+                // Telefondan yuklangan MP4 video uchun HTML5 video tegi
+                const videoEl = document.createElement('video');
+                videoEl.id = 'videoIframe';
+                videoEl.className = 'video-frame';
+                videoEl.src = embedUrl;
+                videoEl.controls = true;
+                videoEl.autoplay = true;
+                oldMedia.replaceWith(videoEl);
+            } else {
+                // YouTube video uchun iframe
+                const iframeEl = document.createElement('iframe');
+                iframeEl.id = 'videoIframe';
+                iframeEl.className = 'video-frame';
+                iframeEl.src = embedUrl;
+                iframeEl.allowFullscreen = true;
+                oldMedia.replaceWith(iframeEl);
+            }
+
+            document.getElementById('likeBtn').classList.remove('liked');
+            document.getElementById('likeCount').innerText = Math.floor(Math.random() * 500) + 50;
+            document.getElementById('playerModal').style.display = 'flex';
+        };
+
+        // 6. Sozlamalar funksiyalari
+        function changeTheme() {
+            const theme = document.getElementById('themeSelect').value;
+            if (theme === 'light') {
+                document.documentElement.style.setProperty('--bg-main', '#f3f4f6');
+                document.documentElement.style.setProperty('--bg-secondary', '#ffffff');
+                document.documentElement.style.setProperty('--bg-card', '#e5e7eb');
+                document.documentElement.style.setProperty('--text-main', '#111827');
+                document.documentElement.style.setProperty('--border-color', '#d1d5db');
+            } else {
+                document.documentElement.style.setProperty('--bg-main', '#0f0f13');
+                document.documentElement.style.setProperty('--bg-secondary', '#181820');
+                document.documentElement.style.setProperty('--bg-card', '#1f1f29');
+                document.documentElement.style.setProperty('--text-main', '#ffffff');
+                document.documentElement.style.setProperty('--border-color', '#2d2d3a');
+            }
+        }
+
+        function saveSettings() {
+            const newName = document.getElementById('siteNameInput').value.trim();
+            if (newName) {
+                document.querySelector('.logo span').innerText = newName;
+                document.title = newName;
+            }
+            closeModal('settingsModal');
+        }
+
+        function clearSavedVideos() {
+            localStorage.removeItem('uzvideo_saved');
+            alert("Saqlangan videolar o'chirildi! Sahifani yangilang.");
+        }
+
+        // Sahifa ochilganda avval saqlangan videolarni yuklash
+        const savedVideos = JSON.parse(localStorage.getItem('uzvideo_saved') || '[]');
+        if (savedVideos.length > 0) {
+            videos.unshift(...savedVideos);
+            renderVideos(videos, 'popularVideos');
+            renderVideos(videos, 'newVideos');
+        }
+    </script>
+
 </body>
 </html>
