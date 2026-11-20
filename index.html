@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UzVideo - Eng yaxshi videolar platformasi</title>
+    <link rel="stylesheet" href="https://cloudflare.com">
+    <style>
+        :root {
+            --bg-main: #0f0f13;
+            --bg-secondary: #181820;
+            --bg-card: #1f1f29;
+            --accent: #7c3aed;
+            --accent-hover: #6d28d9;
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+            --border-color: #2d2d3a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 24px;
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--text-main);
+            text-decoration: none;
+        }
+
+        .logo i {
+            background-color: var(--accent);
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 6px 16px;
+            width: 40%;
+            max-width: 500px;
+        }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            width: 100%;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .search-bar button {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .icon-btn {
+            background: var(--bg-card);
+            border: none;
+            color: var(--text-main);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Main Layout */
+        .container {
+            display: flex;
+            flex: 1;
+        }
+
+        /* Left Sidebar */
+        .sidebar {
+            width: 240px;
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: var(--accent);
+            color: var(--text-main);
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 10px 0;
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 0 14px;
+            margin-bottom: 4px;
+        }
+
+        .premium-box {
+            margin-top: auto;
+            background: linear-gradient(135deg, #4c1d95, #7c3aed);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .premium-box h4 {
+            margin-bottom: 6px;
+            font-size: 15px;
+        }
+
+        .premium-box p {
+            font-size: 12px;
+            color: #e5e7eb;
+            margin-bottom: 12px;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        /* Content Area */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        /* Top Banner Section */
+        .top-section {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .hero-banner {
+            background: linear-gradient(to right, rgba(15, 15, 19, 0.9), rgba(124, 58, 237, 0.4)), 
+                        url('https://unsplash.com') center/cover;
+            border-radius: 16px;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .hero-banner h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            max-width: 450px;
+        }
+
+        .hero-banner p {
+            color: #d1d5db;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .auth-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .auth-card i {
+            font-size: 32px;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+
+        .auth-card h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .auth-card p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        /* Categories */
+        .categories {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+        }
+
+        .cat-chip {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .cat-chip.active {
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* Grid & Right Sidebar */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 20px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-header h2 {
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .videos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .video-card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .video-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .thumbnail {
+            position: relative;
+            height: 130px;
+            background-color: #2a2a35;
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .video-info {
+            padding: 12px;
+        }
+
+        .video-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .channel-name {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .video-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Trending Sidebar */
+        .trending-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
+            height: fit-content;
+        }
+
+        .trending-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .trending-item:last-child {
+            border-bottom: none;
+        }
+
+        .trend-rank {
+            font-weight: bold;
+            color: var(--accent);
+            font-size: 16px;
+            width: 20px;
+        }
+
+        .trend-thumb {
+            width: 60px;
+            height: 40px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .trend-info h4 {
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .trend-info span {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 900px) {
+            .sidebar { display: none; }
+            .top-section, .content-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="#" class="logo">
+            <i class="fas fa-play"></i>
+            <span>UzVideo</span>
+        </a>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Video qidirish...">
+            <button onclick="searchVideos()"><i class="fas fa-search"></i></button>
+        </div>
+        <div class="user-actions">
+            <button class="icon-btn"><i class="fas fa-bell"></i></button>
+            <button class="icon-btn"><i class="fas fa-user"></i></button>
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <a href="#" class="nav-item active"><i class="fas fa-home"></i> Bosh sahifa</a>
+            <a href="#" class="nav-item"><i class="fas fa-bolt"></i> Shorts</a>
+            <a href="#" class="nav-item"><i class="fas fa-users"></i> Obunalar</a>
+            <div class="sidebar-divider"></div>
+            <a href="#" class="nav-item"><i class="fas fa-folder"></i> Kutubxona</a>
+            <a href="#" class="nav-item"><i class="fas fa-history"></i> Tarix</a>
+            <a href="#" class="nav-item"><i class="fas fa-thumbs-up"></i> Yoqtirganlar</a>
+            <div class="sidebar-divider"></div>
+            <div class="sidebar-title">Kategoriyalar</div>
+            <a href="#" class="nav-item"><i class="fas fa-gamepad"></i> O'yinlar</a>
+            <a href="#" class="nav-item"><i class="fas fa-music"></i> Musiqa</a>
+            <a href="#" class="nav-item"><i class="fas fa-film"></i> Filmlar</a>
+            <a href="#" class="nav-item"><i class="fas fa-futbol"></i> Sport</a>
+            <a href="#" class="nav-item"><i class="fas fa-graduation-cap"></i> Ta'lim</a>
+
+            <div class="premium-box">
+                <h4><i class="fas fa-crown" style="color: gold;"></i> Premium</h4>
+                <p>Reklamalarsiz tomosha qiling!</p>
+                <button class="btn-primary" style="background: white; color: #4c1d95; width: 100%;">Obuna bo'lish</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-section">
+                <div class="hero-banner">
+                    <h1>Eng yaxshi videolar endilikda bir joyda!</h1>
+                    <p>O'zingizga yoqqan kontentni yuqori sifatda tomosha qiling</p>
+                    <div>
+                        <button class="btn-primary"><i class="fas fa-play"></i> Boshlash</button>
+                    </div>
+                </div>
+
+                <div class="auth-card">
+                    <i class="fas fa-video"></i>
+                    <h3>Hisob qayd eting</h3>
+                    <p>Sevimli videolaringizni saqlang va obuna bo'ling!</p>
+                    <button class="btn-primary" style="width: 100%;">Kirish / Ro'yxatdan o'tish</button>
+                </div>
+            </div>
+
+            <div class="categories">
+                <button class="cat-chip active"><i class="fas fa-border-all"></i> Barchasi</button>
+                <button class="cat-chip"><i class="fas fa-gamepad"></i> O'yinlar</button>
+                <button class="cat-chip"><i class="fas fa-music"></i> Musiqa</button>
+                <button class="cat-chip"><i class="fas fa-film"></i> Filmlar</button>
+                <button class="cat-chip"><i class="fas fa-tv"></i> Seriallar</button>
+                <button class="cat-chip"><i class="fas fa-futbol"></i> Sport</button>
+                <button class="cat-chip"><i class="fas fa-laugh"></i> Kulgu</button>
+                <button class="cat-chip"><i class="fas fa-book"></i> Ta'lim</button>
+            </div>
+
+            <div class="content-grid">
+                <div>
+                    <div class="section-header">
+                        <h2><i class="fas fa-fire" style="color: #f97316;"></i> Mashhur videolar</h2>
+                    </div>
+                    <div class="videos-grid" id="popularVideos"></div>
+
+                    <div class="section-header">
+                        <h2><i class="fas fa-clock" style="color: #3b82f6;"></i> Yangi videolar</h2>
+                    </div>
+                    <div class="videos-grid" id="newVideos"></div>
+                </div>
+
+                <div class="trending-box">
+                    <h3 style="margin-bottom: 12px; font-size: 16px;"><i class="fas fa-chart-line" style="color: var(--accent);"></i> Trendda</h3>
+                    <div id="trendingList"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const videos = [
+            {
+                title: "PUBG Mobile - Eng yaxshi montaj 🔥",
+                channel: "PUBG Mobile",
+                views: "2.4M ko'rish",
+                time: "2 kun oldin",
+                duration: "15:24",
+                img: "https://unsplash.com"
+            },
+            {
+                title: "Asliddin - Yolg'izman (music video)",
+                channel: "Asliddin",
+                views: "1.8M ko'rish",
+                time: "2 kun oldin",
+                duration: "4:12",
+                img: "https://unsplash.com"
+            },
+            {
+                title: "Samarqand sayohati | O'zbekiston",
+                channel: "Uzbekistan Travel",
+                views: "1.2M ko'rish",
+                time: "5 kun oldin",
+                duration: "12:30",
+                img: "https://unsplash.com"
+            },
+            {
+                title: "Mushuklarning eng shirin lahzalari 😍",
+                channel: "Funny Animals",
+                views: "890K ko'rish",
+                time: "1 hafta oldin",
+                duration: "8:45",
+                img: "https://unsplash.com"
+            }
+        ];
+
+        function renderVideos(list, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = list.map(v => `
+                <div class="video-card">
+                    <div class="thumbnail">
+                        <img src="${v.img}" alt="${v.title}">
+                        <span class="duration">${v.duration}</span>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">${v.title}</div>
+                        <div class="channel-name">${v.channel} <i class="fas fa-check-circle" style="font-size: 10px;"></i></div>
+                        <div class="video-meta">${v.views} • ${v.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderTrending() {
+            const container = document.getElementById('trendingList');
+            container.innerHTML = videos.map((v, index) => `
+                <div class="trending-item">
+                    <div class="trend-rank">${index + 1}</div>
+                    <img src="${v.img}" class="trend-thumb" alt="">
+                    <div class="trend-info">
+                        <h4>${v.title.substring(0, 25)}...</h4>
+                        <span>${v.views}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function searchVideos() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = videos.filter(v => v.title.toLowerCase().includes(query));
+            renderVideos(filtered, 'popularVideos');
+        }
+
+        renderVideos(videos, 'popularVideos');
+        renderVideos([...videos].reverse(), 'newVideos');
+        renderTrending();
+    </script>
+</body>
+</html>
